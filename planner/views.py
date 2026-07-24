@@ -4,8 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.db.models import Q
 from datetime import date, timedelta
-from .models import WeeklyPlan, DailyAssignment
-from projects.models import Project
+from .models import Assignment
 
 @login_required
 def planner_dashboard(request):

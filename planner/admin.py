@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import WeeklyPlan, DailyAssignment
+from .models import Assignment
 
-admin.site.register(WeeklyPlan)
-admin.site.register(DailyAssignment)
+admin.site.register(Assignment)

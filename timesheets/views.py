@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.db.models import Sum
 from datetime import date, timedelta
-from .models import Timesheet, TimeEntry, MonthlyReport
+from .models import Timesheet, TimeEntry
 from projects.models import Project
 
 @login_required

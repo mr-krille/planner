@@ -1,1 +1,0 @@
-# This file will be replaced with the proper implementation once the apps are created
