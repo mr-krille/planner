@@ -1,11 +1,8 @@
-{% load unfold planner_tags %}
-
-{% url "admin:planner_assignment_add" as dashboard_link %}
+{% load planner_tags %}
 
 {% block content %}
-<div x-data="{ openModal: false, iframeSrc: '' }" class="text-gray-800">
-
-    <main class="max-w-7xl mx-auto overflow-x-auto">
+<main class="max-w-7xl mx-auto mb-12 overflow-x-auto">
+    <h2 class="text-xl mb-4">Wochenplan KW {{ planner.today|date:"W" }}</h2>
       <table class="w-full border-collapse border border-gray-200">
         <thead class="bg-gray-50/90 border-b border-gray-200">
           <tr>
@@ -13,15 +10,15 @@
               <button
                   type="button"
                   @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1'; openModal = true"
-                  class="bg-primary-600 text-white px-4 py-2 rounded w-full"
+                  class="px-4 py-2 rounded bg-primary-600 text-white"
               >
                     + Zuweisen
               </button>
             </th>
             {% for day in planner.work_days %}
-            <th class="py-3 text-center border-r border-gray-200 last:border-r-0 min-w-[80px]">
-              <span class="block text-sm font-bold text-gray-700">{{ day|date:"D" }}</span>
-              <span class="block text-xs text-gray-500">{{ day|date:"d.m" }}</span>
+            <th class="w-18 py-3 text-center border-r border-base-200 last:border-r-0">
+              <span class="block text-sm font-bold text-base-700">{{ day|date:"D" }}</span>
+              <span class="block text-xs text-base-400">{{ day|date:"d.m" }}</span>
             </th>
             {% endfor %}
           </tr>
@@ -35,28 +32,28 @@
               {{ group.grouper }}
             </td>
 
-            <!-- Logic Note: You must filter these to handle skipped cells -->
             {% for assignment in group.list %}
-
-                {% for day in planner.work_days %}
                 {% with colspan=assignment|grid_span:planner.work_days %}
+                {% for day in planner.work_days %}
+
                     {% if assignment and assignment.start_date.date == day or forloop.first and assignment.start_date.date < day %}
                     <!-- This cell spans multiple days -->
                     <td {% if colspan > 1 %}colspan="{{ colspan }}" {% endif %}class="border-r border-gray-100 p-1">
                        <div
                            @click="iframeSrc = '{% url 'admin:planner_assignment_change' assignment.id %}?_popup=1'; openModal = true"
-                           class="rounded shadow-sm p-2 bg-blue-300 text-primary-900 cursor-pointer"
+                           class="p-2 rounded shadow-sm bg-blue-300 text-primary-900 cursor-pointer"
                        >
-                          <span class="font-bold text-[10px] bg-white/70 px-1 rounded">{{ assignment.id }}</span>
-                          <span class="font-medium text-xs">{{ assignment.project }}</span>
+                          <span class="inline-block w-6 px-1 mr-2 rounded font-light text-center text-s text-base-400 bg-white">{{ assignment.id }}</span>
+                          <span class="font-bold text-s text-base-700">{{ assignment.project }}</span>
                        </div>
                     </td>
                     {% elif forloop.counter0|add:colspan <= forloop.length %}
                     <!-- Empty cell for days with no assignment -->
                     <td class="border-r border-gray-100 min-h-[3rem]"></td>
                     {% endif %}
-                {% endwith %}
+
                 {% endfor %}
+                {% endwith %}
             </tr>
             {% endfor %}
 
@@ -64,76 +61,4 @@
         </tbody>
       </table>
     </main>
-
-    <!-- Modal Overlay -->
-    <div
-        x-show="openModal"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-        style="display: none; background-color: rgba(0, 0, 0, .7);"
-        x-transition.opacity
-    >
-        <!-- Modal Window -->
-        <div
-            @click.outside="openModal = false; iframeSrc = ''"
-            class="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-4xl flex flex-col overflow-hidden relative"
-            style="height: 85vh;"
-        >
-            <!-- Modal Header -->
-            <div
-                class="flex justify-between items-center px-6 py-4 border-b border-gray-200 dark:border-gray-800"
-            >
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    Manage Record
-                </h3>
-                <button
-                    @click="openModal = false; iframeSrc = ''"
-                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                    <svg
-                        class="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
-                        ></path>
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Modal Body (Iframe) -->
-            <div class="flex-grow w-full h-full relative bg-gray-50 dark:bg-gray-900">
-                <iframe :src="iframeSrc" class="w-full h-full border-0"></iframe>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    // Django automatically calls these functions when a form with ?_popup=1 is successfully submitted.
-    // By defining them here, we catch the success event, close the modal, and refresh the dashboard.
-
-    window.dismissAddRelatedObjectPopup = function (win, newId, newRepr) {
-        win.close();
-        window.location.reload();
-    };
-
-    window.dismissChangeRelatedObjectPopup = function (
-        win,
-        objId,
-        newRepr,
-        newRepr,
-    ) {
-        win.close();
-        window.location.reload();
-    };
-
-    window.dismissDeleteRelatedObjectPopup = function (win, objId) {
-        win.close();
-        window.location.reload();
-    };
-</script>
 {% endblock %}

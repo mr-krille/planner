@@ -1,0 +1,27 @@
+{% block content %}
+<div>
+    <h2 class="text-xl mb-4">Projekte</h2>
+
+    <button
+        type="button"
+        @click="iframeSrc = '{% url 'admin:projects_project_add' %}?_popup=1'; openModal = true"
+        class="mb-4 px-4 py-2 rounded bg-primary-600 text-white"
+    >
+          + Neues Projekt
+    </button>
+
+    <div class="grid">
+        {% for project in projects.list %}
+
+        <div
+            @click="iframeSrc = '{% url 'admin:projects_project_change' project.id %}?_popup=1'; openModal = true"
+            class="rounded shadow-sm p-2 bg-blue-300 text-primary-900 cursor-pointer"
+        >
+            <span class="block">{{ project.name }}</span>
+            <span class="block">{{ project.files.count }} Dateien</span>
+        </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -138,7 +138,7 @@ AUTH_USER_MODEL = 'auth.User'
 # Provide dashboard with data via context
 
 UNFOLD = {
-    "DASHBOARD_CALLBACK": "planner.views.dashboard_callback",
+    "DASHBOARD_CALLBACK": "core.views.dashboard_callback",
 }
 
 # Enable iframe popup edits
