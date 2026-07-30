@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'timesheets',
     'pages',
     'unfold',
+    'unfold.contrib.filters',  # optional, if special filters are needed
+    'unfold.contrib.forms',  # optional, if special form elements are needed
+    'unfold.contrib.inlines', # optional, if special inlines are needed
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -127,5 +130,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 # Custom user model
+
 AUTH_USER_MODEL = 'auth.User'
+
+# Provide dashboard with data via context
+
+UNFOLD = {
+    "DASHBOARD_CALLBACK": "planner.views.dashboard_callback",
+}
+
+# Enable iframe popup edits
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'

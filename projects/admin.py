@@ -1,5 +1,14 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
+
 from .models import Project, File
 
-admin.site.register(Project)
-admin.site.register(File)
+
+@admin.register(Project)
+class ProjectAdmin(ModelAdmin):
+    pass
+
+
+@admin.register(File)
+class FileAdmin(ModelAdmin):
+    pass

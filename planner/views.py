@@ -1,10 +1,40 @@
+from datetime import date, datetime, timezone, timedelta
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponseForbidden
 from django.db.models import Q
-from datetime import date, timedelta
+
 from .models import Assignment
+
+
+def dashboard_callback(request, context):
+    today = datetime.now(tz=timezone(timedelta(hours=12))).date()
+    weekday = today.weekday() # int 0-6
+    start_of_week = today - timedelta(days=weekday)
+    end_of_week = start_of_week + timedelta(days=6)
+
+    work_days = []
+    current_date = start_of_week
+    while len(work_days) < 10:
+        if current_date.weekday() < 5: # 0-4 is Mon-Fri
+            work_days.append(current_date)
+        current_date += timedelta(days=1)
+
+
+    context.update({
+        'planner': {
+            'today': today,
+            'start_of_week': start_of_week,
+            'end_of_week': end_of_week,
+            'work_days': work_days,
+            'assignments': Assignment.objects.all(),
+        }
+    })
+
+    return context
+
 
 @login_required
 def planner_dashboard(request):

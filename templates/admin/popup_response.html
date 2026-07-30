@@ -1,0 +1,33 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}">
+<head>
+    <title>{% translate 'Popup closing…' %}</title>
+</head>
+<body>
+    <div id="django-admin-popup-response-constants" data-popup-response="{{ popup_response_data }}"></div>
+    <script>
+        'use strict';
+        {
+            const initData = JSON.parse(document.getElementById('django-admin-popup-response-constants').dataset.popupResponse);
+
+            // THE FIX: Try window.parent first (for iframes), fallback to window.opener (for new tabs)
+            const targetWindow = window.parent || window.opener;
+
+            if (targetWindow) {
+                switch(initData.action) {
+                    case 'change':
+                        targetWindow.dismissChangeRelatedObjectPopup(window, initData.value, initData.obj, initData.new_value);
+                        break;
+                    case 'delete':
+                        targetWindow.dismissDeleteRelatedObjectPopup(window, initData.value);
+                        break;
+                    default:
+                        targetWindow.dismissAddRelatedObjectPopup(window, initData.value, initData.obj);
+                        break;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

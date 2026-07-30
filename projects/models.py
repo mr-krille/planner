@@ -7,6 +7,7 @@ class Project(models.Model):
     Project model with metadata and access control
     """
     name = models.CharField(max_length=200)
+    company = models.CharField(max_length=50)
     description = models.TextField(blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_projects')
     created_at = models.DateTimeField(auto_now_add=True)
