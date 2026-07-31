@@ -8,14 +8,14 @@ class Project(models.Model):
     """
 
     name = models.CharField(max_length=200)
-    company = models.CharField(max_length=50)
-    color = models.CharField(max_length=6, blank=True)
-    description = models.TextField(blank=True)
+    company = models.CharField(max_length=50, verbose_name="Firma")
+    color = models.CharField(max_length=6, blank=True, verbose_name="Farbe")
+    description = models.TextField(blank=True, verbose_name="Beschreibung")
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="created_projects"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Geändert")
 
     def __str__(self):
         return self.name
@@ -51,3 +51,20 @@ class File(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
+
+
+class Task(models.Model):
+    """
+    Task model with metadata and access control
+    """
+
+    name = models.CharField(max_length=200)
+    color = models.CharField(max_length=6, blank=True, verbose_name="Farbe")
+    description = models.TextField(blank=True, verbose_name="Beschreibung")
+    due_date = models.DateField(blank=True, null=True, verbose_name="Fällig am")
+    is_done = models.BooleanField(default=False, verbose_name="Erledigt")
+    created_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="created_tasks"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Geändert")

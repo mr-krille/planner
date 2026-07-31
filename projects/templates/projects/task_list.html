@@ -1,0 +1,30 @@
+{% block content %}
+<div class="mb-12">
+    <h2 class="text-xl mb-4">Aufgaben</h2>
+
+    <button
+        type="button"
+        @click="iframeSrc = '{% url 'admin:projects_task_add' %}?_popup=1'; openModal = true"
+        class="mb-4 px-4 py-2 rounded bg-primary-600 font-bold text-white"
+    >
+          + Neue Aufgabe
+    </button>
+
+    <div class="grid grid-cols-5 gap-3">
+        {% for task in projects.tasks %}
+
+        <div
+            @click="iframeSrc = '{% url 'task_detail' task.id %}?_popup=1'; openModal = true"
+            class="rounded shadow-sm p-3 text-primary-900 cursor-pointer"
+            style="background-color: #{{ task.color|default:"fff" }}"
+        >
+            {% if task.due_date %}
+            <span class="my-2 block font-bold text-s text-primary-700">{{ task.due_date|date:"d.m." }}</span>
+            {% endif %}
+            <span class="my-2 block font-bold text-xl text-base-700">{{ task.name }}</span>
+        </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

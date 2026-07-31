@@ -1,0 +1,36 @@
+{% extends "unfold/layouts/skeleton.html" %}
+
+{% block extrastyle %}
+<style>
+.file-list > a:hover {
+    background: #b3b3b3;
+}
+</style>
+{% endblock %}
+
+{% block base %}
+<div class="header p-6" style="background-color: #{{ project.color|default:"fff" }};">
+    <h2 class="text-xl">{{ project.name }}</h2>
+</div>
+{% if project.description %}
+<p class="p-6 text-s">
+    {{ project.description }}
+</p>
+{% endif %}
+<div class="file-list p-6 grid grid-cols-1 gap-3">
+    <p>Dateien:</p>
+    {% for file in project.files.all %}
+        <a
+            href="/media/{{ file.file }}"
+            class="block grid grid-cols-3 gap-3 p-3 rounded hover:bg-base-200"
+            style="border: 1px solid #b3b3b3;"
+        >
+            <span>{{ file.name }}</span>
+            <span>{{ file.file.name }}</span>
+            <span class="text-right">{{ file.file.size|filesizeformat }}</span>
+        </a>
+    {% empty %}
+        <p>keine Dateien vorhanden</p>
+    {% endfor %}
+</div>
+{% endblock %}
