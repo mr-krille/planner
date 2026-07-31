@@ -1,24 +1,26 @@
 {% block content %}
-<div>
+<div class="mb-12">
     <h2 class="text-xl mb-4">Projekte</h2>
 
     <button
         type="button"
         @click="iframeSrc = '{% url 'admin:projects_project_add' %}?_popup=1'; openModal = true"
-        class="mb-4 px-4 py-2 rounded bg-primary-600 text-white"
+        class="mb-4 px-4 py-2 rounded bg-primary-600 font-bold text-white"
     >
           + Neues Projekt
     </button>
 
-    <div class="grid">
+    <div class="grid grid-cols-5 gap-3">
         {% for project in projects.list %}
 
         <div
-            @click="iframeSrc = '{% url 'admin:projects_project_change' project.id %}?_popup=1'; openModal = true"
-            class="rounded shadow-sm p-2 bg-blue-300 text-primary-900 cursor-pointer"
+            @click="iframeSrc = '{% url 'project_detail' project.id %}?_popup=1'; openModal = true"
+            class="rounded shadow-sm p-3 text-primary-900 cursor-pointer"
+            style="background-color: #{{ project.color|default:"fff" }}"
         >
-            <span class="block">{{ project.name }}</span>
-            <span class="block">{{ project.files.count }} Dateien</span>
+            <span class="inline-block font-light text-s text-base-100">{{ project.shortname }}</span>
+            <span class="my-2 block font-bold text-xl text-base-700">{{ project.name }}</span>
+            <span class="inline-block font-light text-s text-base-600">{{ project.files.count }} Dateien</span>
         </div>
 
         {% endfor %}

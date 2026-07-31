@@ -1,0 +1,11 @@
+{% block content %}
+    <h2>Projekt {{ project.name }}</h2>
+    Dateien:
+    {% for file in project.files.all %}
+        <p>
+            <a href="/media/{{ file.file }}">{{ file }}</a>
+        </p>
+    {% empty %}
+    <p>keine Dateien vorhanden</p>
+    {% endfor %}
+{% endblock %}

@@ -9,6 +9,7 @@ class Project(models.Model):
 
     name = models.CharField(max_length=200)
     company = models.CharField(max_length=50)
+    color = models.CharField(max_length=6, blank=True)
     description = models.TextField(blank=True)
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="created_projects"
@@ -18,6 +19,9 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+    def shortname(self):
+        return f"{self.company}-{self.created_at:%Y}-0{self.id}"
 
     class Meta:
         ordering = ["-created_at"]
@@ -30,15 +34,10 @@ class File(models.Model):
 
     name = models.CharField(max_length=200)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="files")
-    file_path = models.FilePathField(
-        path="/tmp"
-    )  # In production, this would point to file storage
+    file = models.FileField()  # In production, this would point to file storage
     upload_date = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="uploaded_files"
-    )
-    uploaded_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="uploaded_by"
     )
 
     def __str__(self):
