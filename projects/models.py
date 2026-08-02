@@ -1,6 +1,17 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+COLORS = {
+    "66c5cc": "türkis",
+    "f6cf71": "gelb",
+    "f89c74": "orange",
+    "dcb0f2": "lila",
+    "87c55f": "grün",
+    "9eb9f3": "blau",
+    "fe88b1": "rosa",
+    "b3b3b3": "grau",
+}
+
 
 class Project(models.Model):
     """
@@ -9,10 +20,12 @@ class Project(models.Model):
 
     name = models.CharField(max_length=200)
     company = models.CharField(max_length=50, verbose_name="Firma")
-    color = models.CharField(max_length=6, blank=True, verbose_name="Farbe")
+    color = models.CharField(
+        max_length=6, choices=COLORS, default=list(COLORS)[-1], verbose_name="Farbe"
+    )
     description = models.TextField(blank=True, verbose_name="Beschreibung")
     created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="created_projects"
+        User, editable=False, on_delete=models.CASCADE, related_name="created_projects"
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Geändert")
@@ -22,6 +35,31 @@ class Project(models.Model):
 
     def shortname(self):
         return f"{self.company}-{self.created_at:%Y}-0{self.id}"
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class Task(models.Model):
+    """
+    Task model with metadata and access control
+    """
+
+    name = models.CharField(max_length=200)
+    color = models.CharField(
+        max_length=6, choices=COLORS, default=list(COLORS)[-1], verbose_name="Farbe"
+    )
+    description = models.TextField(blank=True, verbose_name="Beschreibung")
+    due_date = models.DateField(blank=True, null=True, verbose_name="Fällig am")
+    is_done = models.BooleanField(default=False, verbose_name="Erledigt")
+    created_by = models.ForeignKey(
+        User, editable=False, on_delete=models.CASCADE, related_name="created_tasks"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Geändert")
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ["-created_at"]
@@ -51,20 +89,3 @@ class File(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
-
-
-class Task(models.Model):
-    """
-    Task model with metadata and access control
-    """
-
-    name = models.CharField(max_length=200)
-    color = models.CharField(max_length=6, blank=True, verbose_name="Farbe")
-    description = models.TextField(blank=True, verbose_name="Beschreibung")
-    due_date = models.DateField(blank=True, null=True, verbose_name="Fällig am")
-    is_done = models.BooleanField(default=False, verbose_name="Erledigt")
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="created_tasks"
-    )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="Geändert")

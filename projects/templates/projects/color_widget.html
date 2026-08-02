@@ -1,0 +1,26 @@
+{% block extrastyle %}
+<style>
+.color-label > input {
+    display: none;
+}
+.color-label:has(> input:checked) {
+    border: 3px solid white;
+    outline: 3px solid var(--color-primary-900);
+}
+</style>
+{% endblock %}
+{% with id=widget.attrs.id %}<div{% if id %} id="{{ id }}"{% endif %} class="grid grid-cols-8">
+{% for group, options, index in widget.optgroups %}
+  {% for widget in options %}
+  <div class="text-center">
+    <label{% if widget.attrs.id %} for="{{ widget.attrs.id }}" {% endif %}
+        class="color-label inline-block w-8 h-8 rounded-full"
+        style="background-color: #{{ widget.value }};"
+        title="{{ widget.label }}">
+        {% include "django/forms/widgets/input.html" %}
+    </label>
+  </div>
+  {% endfor %}
+{% endfor %}
+</div>
+{% endwith %}
