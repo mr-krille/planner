@@ -6,4 +6,4 @@ from .models import Assignment
 
 @admin.register(Assignment)
 class AssignmentAdmin(ModelAdmin):
-    pass
+    list_display = ["project", "employee", "start_date", "end_date"]

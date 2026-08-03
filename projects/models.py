@@ -37,7 +37,7 @@ class Project(models.Model):
         return f"{self.company}-{self.created_at:%Y}-0{self.id}"
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-updated_at"]
 
 
 class Task(models.Model):

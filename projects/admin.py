@@ -1,3 +1,5 @@
+from csv import list_dialects
+
 from django.contrib import admin
 from django.forms.widgets import RadioSelect
 from unfold.admin import ModelAdmin
@@ -26,12 +28,12 @@ class WithCreatedByCurrentUser:
 
 @admin.register(Project)
 class ProjectAdmin(WithColorWidget, WithCreatedByCurrentUser, ModelAdmin):
-    pass
+    list_display = ["shortname", "name", "created_by", "updated_at"]
 
 
 @admin.register(Task)
 class TaskAdmin(WithColorWidget, WithCreatedByCurrentUser, ModelAdmin):
-    pass
+    list_display = ["name", "created_by", "due_date", "updated_at", "is_done"]
 
 
 @admin.register(File)
