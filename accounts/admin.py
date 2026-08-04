@@ -27,8 +27,3 @@ class UserAdmin(BaseUserAdmin, ModelAdmin):
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
     inlines = (UserProfileInline,)
-
-
-@admin.register(Group)
-class GroupAdmin(BaseGroupAdmin, ModelAdmin):
-    pass
