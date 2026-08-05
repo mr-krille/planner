@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
+from django.contrib.auth import get_user_model
+
 from .models import Assignment
 
 
@@ -16,6 +18,11 @@ def planner_context(request, context):
             work_days.append(current_date)
         current_date += timedelta(days=1)
 
+    assignments = Assignment.objects.all().order_by("employee")
+    assigned_users = {
+        e["employee__username"] for e in assignments.values("employee__username")
+    }
+
     context.update(
         {
             "planner": {
@@ -23,7 +30,10 @@ def planner_context(request, context):
                 "start_of_week": start_of_week,
                 "end_of_week": end_of_week,
                 "work_days": work_days,
-                "assignments": Assignment.objects.all(),
+                "assignments": assignments,
+                "free_employees": get_user_model().objects.exclude(
+                    username__in=assigned_users
+                ),
             }
         }
     )

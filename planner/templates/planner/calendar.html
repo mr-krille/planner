@@ -25,14 +25,15 @@
         </thead>
 
         <tbody class="divide-y divide-gray-100">
-          {% regroup planner.assignments by employee as employee_assignments %}
-          {% for group in employee_assignments %}
-          <tr class="hover:bg-base-50" style="border-bottom-width: 1px;">
+        {% regroup planner.assignments by employee as employee_assignments %}
+        {% for group in employee_assignments %}
+        <tr class="hover:bg-base-50" style="border-bottom-width: 1px;">
             <td {% if group.list|length > 1 %}rowspan="{{ group.list|length }}" {% endif %}class="p-4 border-r border-gray-200 font-bold text-sm text-gray-800">
-              {{ group.grouper }}
+              {{ group.grouper.username }}
             </td>
 
             {% for assignment in group.list %}
+                {% if forloop.counter0 > 0 %}<tr class="hover:bg-base-50" style="border-bottom-width: 1px;">{% endif %}
                 {% with colspan=assignment|grid_span:planner.work_days %}
                 {% for day in planner.work_days %}
 
@@ -57,11 +58,24 @@
 
                 {% endfor %}
                 {% endwith %}
+                {% if forloop.counter0 > 0 and not forloop.last  %}</tr>{% endif %}
+            </tr>
+            {% endfor %}
+            {% endfor %}
+            <!-- free employees -->
+            {% for free_employee in planner.free_employees %}
+            <tr class="hover:bg-base-50" style="border-bottom-width: 1px;">
+              <td class="p-4 border-r border-gray-200 font-bold text-sm text-gray-800">
+                {{ free_employee.username }}
+              </td>
+              {% for day in planner.work_days %}
+              <td class="border-r border-gray-100 min-h-[3rem]"></td>
+              {% endfor %}
             </tr>
             {% endfor %}
 
-          {% endfor %}
         </tbody>
       </table>
+
 </div>
 {% endblock %}
