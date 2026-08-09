@@ -16,7 +16,7 @@
         <div
             @click="iframeSrc = '{% url 'project_detail' project.id %}?_popup=1'; openModal = true"
             class="rounded shadow-sm p-3 text-primary-900 cursor-pointer"
-            style="background-color: #{{ project.color|default:"fff" }}"
+            style="background-color: #{{ project.color }}"
         >
             <span class="inline-block font-light text-s text-base-100">{{ project.shortname }}</span>
             <span class="my-2 block font-bold text-xl text-base-700">{{ project.name }}</span>

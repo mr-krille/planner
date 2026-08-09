@@ -1,7 +1,7 @@
 {% extends "unfold/layouts/skeleton.html" %}
 
 {% block base %}
-<div class="header p-6" style="background-color: #{{ task.color|default:"fff" }};">
+<div class="header p-6" style="background-color: #{{ task.color }};">
     <h2 class="text-xl">{{ task.name }}</h2>
 </div>
 {% if task.due_date %}

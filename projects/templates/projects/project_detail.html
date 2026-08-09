@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block base %}
-<div class="header p-6" style="background-color: #{{ project.color|default:"fff" }};">
+<div class="header p-6" style="background-color: #{{ project.color }};">
     <h2 class="text-xl">{{ project.name }}</h2>
 </div>
 {% if project.description %}

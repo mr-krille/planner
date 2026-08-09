@@ -12,7 +12,7 @@ def grid_start(assignment, days):
     Finds the first visible day that falls within the assignment's date range.
     """
     for i, day in enumerate(days):
-        if assignment.start_date.date() <= day <= assignment.end_date.date():
+        if assignment.start_date <= day <= assignment.end_date:
             return i + 1  # CSS Grid columns are 1-indexed
     return 1
 
@@ -26,6 +26,6 @@ def grid_span(assignment, days):
     """
     count = 0
     for day in days:
-        if assignment.start_date.date() <= day <= assignment.end_date.date():
+        if assignment.start_date <= day <= assignment.end_date:
             count += 1
     return count

@@ -16,7 +16,7 @@
         <div
             @click="iframeSrc = '{% url 'task_detail' task.id %}?_popup=1'; openModal = true"
             class="rounded shadow-sm p-3 text-primary-900 cursor-pointer"
-            style="background-color: #{{ task.color|default:"fff" }}"
+            style="background-color: #{{ task.color }}"
         >
             {% if task.due_date %}
             <span class="my-2 block font-bold text-s text-primary-700">{{ task.due_date|date:"d.m." }}</span>

@@ -37,13 +37,13 @@
                 {% with colspan=assignment|grid_span:planner.work_days %}
                 {% for day in planner.work_days %}
 
-                    {% if assignment and assignment.start_date.date == day or forloop.first and assignment.start_date.date < day %}
+                    {% if assignment and assignment.start_date == day or forloop.first and assignment.start_date < day %}
                     <!-- This cell spans multiple days -->
                     <td {% if colspan > 1 %}colspan="{{ colspan }}" {% endif %}class="border-r border-gray-100 p-1">
                        <div
                            @click="iframeSrc = '{% url 'admin:planner_assignment_change' assignment.id %}?_popup=1'; openModal = true"
                            class="flex flex-wrap px-3 pb-2 pt-0 rounded shadow-sm text-primary-900 cursor-pointer"
-                           style="background-color: #{{ assignment.project.color|default:"fff" }}"
+                           style="background-color: #{{ assignment.project.color }}"
                        >
                           <span class="inline-block mt-2 mr-2 font-light text-s text-base-100">
                               {{ assignment.project.shortname }}

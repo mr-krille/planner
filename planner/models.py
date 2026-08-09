@@ -16,8 +16,8 @@ class Assignment(models.Model):
         verbose_name="Projekt",
     )
 
-    start_date = models.DateTimeField(verbose_name="Start")
-    end_date = models.DateTimeField(verbose_name="Ende")
+    start_date = models.DateField(verbose_name="Start")
+    end_date = models.DateField(verbose_name="Ende")
 
     description = models.TextField(blank=True, verbose_name="Notizen")
 
