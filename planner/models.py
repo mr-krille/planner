@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 
 
@@ -8,7 +8,7 @@ class Assignment(models.Model):
     """
 
     employee = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="Mitarbeiter"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Mitarbeiter"
     )
     project = models.ForeignKey(
         "projects.Project",

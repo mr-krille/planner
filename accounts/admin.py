@@ -1,12 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
 from unfold.admin import ModelAdmin
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 
-from .models import UserProfile
+from .models import User, UserProfile
 
-admin.site.unregister(User)
 admin.site.unregister(Group)
 
 
@@ -14,7 +13,7 @@ admin.site.unregister(Group)
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
     can_delete = False
-    verbose_name_plural = "User Profiles"
+    verbose_name_plural = "User Profile"
 
 
 @admin.register(User)

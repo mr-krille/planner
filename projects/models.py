@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.db import models
 
 COLORS = {
@@ -25,7 +25,10 @@ class Project(models.Model):
     )
     description = models.TextField(blank=True, verbose_name="Beschreibung")
     created_by = models.ForeignKey(
-        User, editable=False, on_delete=models.CASCADE, related_name="created_projects"
+        settings.AUTH_USER_MODEL,
+        editable=False,
+        on_delete=models.CASCADE,
+        related_name="created_projects",
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Geändert")
@@ -53,7 +56,10 @@ class Task(models.Model):
     due_date = models.DateField(blank=True, null=True, verbose_name="Fällig am")
     is_done = models.BooleanField(default=False, verbose_name="Erledigt")
     created_by = models.ForeignKey(
-        User, editable=False, on_delete=models.CASCADE, related_name="created_tasks"
+        settings.AUTH_USER_MODEL,
+        editable=False,
+        on_delete=models.CASCADE,
+        related_name="created_tasks",
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Geändert")
@@ -75,7 +81,9 @@ class File(models.Model):
     file = models.FileField()  # In production, this would point to file storage
     upload_date = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="uploaded_files"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="uploaded_files",
     )
 
     def __str__(self):
