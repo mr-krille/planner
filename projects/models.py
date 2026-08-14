@@ -12,6 +12,11 @@ COLORS = {
     "b3b3b3": "grau",
 }
 
+COMPANIES = {
+    "JE": "Jede Elektro",
+    "EW": "Elektro Wolff",
+}
+
 
 class Project(models.Model):
     """
@@ -19,7 +24,12 @@ class Project(models.Model):
     """
 
     name = models.CharField(max_length=200)
-    company = models.CharField(max_length=50, verbose_name="Firma")
+    company = models.CharField(
+        max_length=50,
+        choices=COMPANIES,
+        default=list(COMPANIES)[-1],
+        verbose_name="Firma",
+    )
     color = models.CharField(
         max_length=6, choices=COLORS, default=list(COLORS)[-1], verbose_name="Farbe"
     )
