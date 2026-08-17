@@ -1,5 +1,19 @@
 {% load planner_tags %}
 
+{% block extrastyle %}
+<style>
+.free-day {
+    text-align: center;
+}
+.free-day > button {
+    display: none;
+}
+.free-day:hover > button {
+    display: inline-block;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="max-w-7xl mx-auto mt-6 mb-12 overflow-x-auto">
     <h2 class="text-xl mb-4">Wochenplan KW {{ planner.today|date:"W" }} + {{ planner.today|date:"W"|add:1 }}</h2>
@@ -8,11 +22,11 @@
           <tr>
             <th class="w-48 p-4 text-left border-r border-gray-200">
               <button
-                  type="button"
-                  @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1'; openModal = true"
-                  class="px-4 py-2 rounded bg-primary-600 text-white"
+                @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1'; openModal = true"
+                class="px-4 py-2 rounded bg-primary-600 text-white cursor-pointer"
+                type="button"
               >
-                    + Zuweisen
+                + Zuweisen
               </button>
             </th>
             {% for day in planner.work_days %}
@@ -53,7 +67,15 @@
                     </td>
                     {% elif forloop.counter0|add:colspan <= forloop.length %}
                     <!-- Empty cell for days with no assignment -->
-                    <td class="border-r border-gray-100 min-h-[3rem]"></td>
+                    <td class="free-day border-r border-gray-100 min-h-[3rem]">
+                      <button
+                        @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1&employee={{ group.grouper.id }}&start_date={{ day|date:"d.m.Y" }}'; openModal = true"
+                        class="px-7 py-2 rounded bg-primary-600 font-bold text-white cursor-pointer"
+                        type="button"
+                      >
+                        +
+                      </button>
+                    </td>
                     {% endif %}
 
                 {% endfor %}
@@ -69,7 +91,15 @@
                 {{ free_employee }}
               </td>
               {% for day in planner.work_days %}
-              <td class="border-r border-gray-100 min-h-[3rem]"></td>
+              <td class="free-day border-r border-gray-100 min-h-[3rem]">
+                <button
+                  @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1&employee={{ free_employee.id }}&start_date={{ day|date:"d.m.Y" }}'; openModal = true"
+                  class="px-7 py-2 rounded bg-primary-600 font-bold text-white cursor-pointer"
+                  type="button"
+                >
+                  +
+                </button>
+              </td>
               {% endfor %}
             </tr>
             {% endfor %}
