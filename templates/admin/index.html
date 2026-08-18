@@ -16,7 +16,9 @@
 
 {% block content %}
 <div x-data="{ openModal: false, iframeSrc: '' }">
+    {% if user.is_superuser %}
     {% include "projects/task_list.html" %}
+    {% endif %}
     {% include "planner/calendar.html" %}
     {% include "projects/project_list.html" %}
 

@@ -1,7 +1,7 @@
 {% block content %}
 <div class="mb-12">
     <h2 class="text-xl mb-4">Projekte</h2>
-
+    {% if user.is_superuser %}
     <button
         type="button"
         @click="iframeSrc = '{% url 'admin:projects_project_add' %}?_popup=1'; openModal = true"
@@ -9,6 +9,7 @@
     >
           + Neues Projekt
     </button>
+    {% endif %}
 
     <div class="grid grid-cols-5 gap-3">
         {% for project in projects.list %}

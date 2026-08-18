@@ -21,6 +21,7 @@
         <thead class="bg-gray-50/90 border-b border-gray-200">
           <tr>
             <th class="w-48 p-4 text-left border-r border-gray-200">
+              {% if user.is_superuser %}
               <button
                 @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1'; openModal = true"
                 class="px-4 py-2 rounded bg-primary-600 text-white cursor-pointer"
@@ -28,6 +29,7 @@
               >
                 + Zuweisen
               </button>
+              {% endif %}
             </th>
             {% for day in planner.work_days %}
             <th class="w-18 py-3 text-center border-r border-base-200 last:border-r-0">
@@ -68,6 +70,7 @@
                     {% elif forloop.counter0|add:colspan <= forloop.length %}
                     <!-- Empty cell for days with no assignment -->
                     <td class="free-day border-r border-gray-100 min-h-[3rem]">
+                      {% if user.is_superuser %}
                       <button
                         @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1&employee={{ group.grouper.id }}&start_date={{ day|date:"d.m.Y" }}'; openModal = true"
                         class="px-7 py-2 rounded bg-primary-600 font-bold text-white cursor-pointer"
@@ -75,6 +78,7 @@
                       >
                         +
                       </button>
+                      {% endif %}
                     </td>
                     {% endif %}
 
@@ -92,6 +96,7 @@
               </td>
               {% for day in planner.work_days %}
               <td class="free-day border-r border-gray-100 min-h-[3rem]">
+                {% if user.is_superuser %}
                 <button
                   @click="iframeSrc = '{% url 'admin:planner_assignment_add' %}?_popup=1&employee={{ free_employee.id }}&start_date={{ day|date:"d.m.Y" }}'; openModal = true"
                   class="px-7 py-2 rounded bg-primary-600 font-bold text-white cursor-pointer"
@@ -99,6 +104,7 @@
                 >
                   +
                 </button>
+                {% endif %}
               </td>
               {% endfor %}
             </tr>
