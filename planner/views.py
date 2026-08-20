@@ -31,9 +31,9 @@ def planner_context(request, context):
                 "end_of_week": end_of_week,
                 "work_days": work_days,
                 "assignments": assignments,
-                "free_employees": get_user_model().objects.exclude(
-                    username__in=assigned_users
-                ),
+                "free_employees": get_user_model().objects
+                    .exclude(username__in=assigned_users)
+                    .exclude(is_superuser=True),
             }
         }
     )
