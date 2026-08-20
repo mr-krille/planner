@@ -1,190 +1,174 @@
-  Company Management Platform
+# Company Management Platform
 
-  1. System Overview
+A Django platform for managing projects, weekly work assignments, and monthly timesheets for a
+German electrical firm. Two operating companies: `JE` = "Jede Elektro" and `EW` = "Elektro Wolff".
+Language/locale is German (`de-de`, timezone `Europe/Berlin`); UI text and model labels are in German.
 
-  You want a Django-based managing platform with:
-  - Two user types: admin and employees
-  - Email-based registration
-  - Three core apps: Projects, Planner, Timesheets
-  
-  2. Platform Architecture
+- **Django 6.0.7**, SQLite, run from `manage.py` (settings module `core.settings`).
+- **Two roles:** admin (Django superuser) and employee. The role is stored on a per-user profile.
+- **Three domains:** Projects, Planner, Timesheets.
 
-  User Authentication System
+## How the front-end works
 
-  - Django's built-in User model with custom role field
-  - Email verification (optional)
-  - Role-based permissions (admin/employee)
-  - Session management and CSRF protection
+The **django-unfold admin (`/admin/`) is the UI shell and the hub** of the app. There is no
+`base.html` and no custom `static/` directory — all styling is the Tailwind CSS + Alpine.js that
+django-unfold ships.
 
-  Projects App
+- `core/settings.py` sets `UNFOLD = {"DASHBOARD_CALLBACK": "core.views.dashboard_callback"}`. That
+  callback (`core/views.py`) calls `planner.views.planner_context` and `projects.views.project_context`
+  to inject planner and projects data into the admin dashboard context.
+- `templates/admin/index.html` (a global override of the admin dashboard) `{% include %}`s three
+  fragments and hosts an Alpine.js modal that opens admin add/change forms in an `iframe`
+  (`?_popup=1`):
+  - `projects/task_list.html` — shown to superusers only
+  - `planner/calendar.html` — the weekly assignment grid
+  - `projects/project_list.html` — project cards
+- `X_FRAME_OPTIONS = 'SAMEORIGIN'` is set so those admin popups can load inside the iframe. On save,
+  the admin's popup response (`templates/admin/popup_response.html`) signals the parent frame, which
+  closes the modal and reloads the dashboard.
 
-  - Projects as virtual folders with associated files
-  - Admin can create, edit, delete projects
-  - Employees can upload files to assigned projects (per day)
-  - Employees can delete their own files only
-  - Project access control with validation
-  - File metadata tracking (upload date, owner)
+The other two admin overrides are `templates/admin/popup_response.html` and
+`templates/admin/submit_line.html`.
 
-  Planner App
+## Project layout
 
-  - Weekly planning for all employees
-  - Admin assigns projects and hours per day
-  - Employees can view their weekly assignments
-  - Daily project-hour tracking per employee
-  - Planner view with color-coded project assignments
+```
+django_project/
+├── manage.py
+├── requirements.txt          # asgiref, Django 6.0.7, django-unfold 0.101.0, sqlparse
+├── db.sqlite3
+├── core/                     # project config: settings.py, urls.py, views.py, wsgi/asgi
+├── accounts/                 # auth: custom User + UserProfile (role), register/login
+├── projects/                 # Project, Task, File
+├── planner/                  # Assignment + week-grid calendar (+ templatetags)
+├── timesheets/               # Timesheet, TimeEntry
+├── pages/                    # trivial home page
+├── templates/admin/          # django-unfold admin overrides
+├── media/                    # uploaded files (MEDIA_ROOT)
+└── venv/
+```
 
-  Timesheets App
+The four domain apps (`accounts`, `projects`, `planner`, `timesheets`) have no `__init__.py` and run
+as Python namespace packages; `core` and `pages` do have one.
 
-  - Monthly time tracking for employees
-  - Monthly reviews of hours worked
-  - Admin view of aggregated hours by worker/project
-  - Time entry validation (cannot enter future dates)
-  - Report generation capability
+## Configuration (`core/settings.py`)
 
-  3. Django Project Structure
+- `INSTALLED_APPS`: the four domain apps plus `pages`, then `unfold` (+ its `filters`/`forms`/`inlines`
+  contribs), then the standard `django.contrib.*` apps.
+- `AUTH_USER_MODEL = 'accounts.User'` (custom user model).
+- `MEDIA_ROOT = BASE_DIR / 'media'`, `MEDIA_URL = '/media/'`; media is served in DEBUG only (see
+  `core/urls.py`). No `STATICFILES_DIRS`/`STATIC_ROOT` — static assets come from unfold.
+- `TIME_ZONE = 'Europe/Berlin'`, `LANGUAGE_CODE = 'de-de'`, `USE_TZ = True`.
+- `X_FRAME_OPTIONS = 'SAMEORIGIN'` (enables the unfold iframe popups).
 
-  company_platform/
-  ├── manage.py
-  ├── requirements.txt (Django, etc.)
-  ├── .gitignore
-  ├── company_platform/
-  │   ├── __init__.py
-  │   ├── settings.py
-  │   ├── urls.py
-  │   └── wsgi.py
-  ├── accounts/                # Authentication app
-  │   ├── __init__.py
-  │   ├── models.py
-  │   ├── views.py
-  │   ├── urls.py
-  │   ├── forms.py
-  │   └── templates/
-  ├── projects/                # Projects app
-  │   ├── __init__.py
-  │   ├── models.py
-  │   ├── views.py
-  │   ├── urls.py
-  │   ├── forms.py
-  │   └── templates/
-  ├── planner/                 # Planner app
-  │   ├── __init__.py
-  │   ├── models.py
-  │   ├── views.py
-  │   ├── urls.py
-  │   ├── forms.py
-  │   └── templates/
-  ├── timesheets/              # Timesheets app
-  │   ├── __init__.py
-  │   ├── models.py
-  │   ├── views.py
-  │   ├── urls.py
-  │   ├── forms.py
-  │   ├── reports.py
-  │   └── templates/
-  └── static/                  # CSS, JS, images
+## URL routing (`core/urls.py`)
 
-  4. Database Design
+Only three things are mounted at the root:
 
-  Core Tables:
+```python
+path("admin/", admin.site.urls)
+path("", include("projects.urls"))
+path("", include("pages.urls"))
+# + static(settings.MEDIA_URL, ...) when DEBUG
+```
 
-  - User - Django auth user (with role field)
-  - Project - Project metadata (name, description, created_by)
-  - File - File details (name, path, upload_date, owner)
-  - WeeklyPlan - Weekly schedule for employees
-  - DailyAssignment - Project assignment per day with hours
-  - Timesheet - Monthly time tracking records
-  - TimeEntry - Individual time entries with project/date
+`accounts` and `timesheets` each have a `urls` module that is **not** included in the root urlconf,
+and `planner` has no `urls` module at all (it is reachable only through the admin dashboard).
 
-  5. Core Features Implementation
+## Accounts (auth)
 
-  User Management:
+- Custom `User` extending `AbstractUser` with `USERNAME_FIELD = "email"` and a unique `email`.
+- A separate `UserProfile` (`OneToOneField` to the user) holds `role`, with choices
+  `admin` / `employee` (default `employee`).
+- Two views (in `accounts/views.py`, with standalone login/register templates — no inheritance):
+  - `register` — creates the `User` and its `UserProfile` (with the chosen role).
+  - `login_view` — authenticates and then `redirect('dashboard')`.
 
-  - Email registration with role assignment (admin/employee)
-  - Django's built-in authentication system
-  - User profile management
-  - Password reset functionality
+## Projects app
 
-  Projects:
+Models (`projects/models.py`):
 
-  - Admin can create/edit/delete projects
-  - Files uploaded to projects are bound to employees
-  - File ownership validation
-  - Project structure with access control
+- **`Project`** — `name`, `company` (choices `JE`/`EW`, default `EW`), `color`, `description`,
+  `created_by` (FK user, set to the creating admin), `created_at`/`updated_at`. `shortname()` returns
+  `<company>-<year>-0<id>` (a literal `0` prepended to the raw id, e.g. `EW-2026-07` for id 7).
+- **`Task`** — a global to-do item (no project FK): `name`, `color`, `description`, `due_date`,
+  `is_done` (default False), `created_by`, timestamps.
+- **`File`** — `name`, `project` (FK), `file` (`FileField`, no `upload_to` → stored at the media root),
+  `upload_date`, `owner` (FK user).
 
-  Planner:
+Color is one of eight choices (hex value → German color name). All create/edit/delete — including file
+upload/download/delete — happens through the django-unfold admin (`ProjectAdmin`, `TaskAdmin`,
+`FileAdmin` in `projects/admin.py`), which uses custom color/company radio widgets and sets
+`created_by` to the current user. Two read-only detail views also exist: `project_detail` and
+`task_detail` (routed in `projects/urls.py`), rendered in unfold-style detail templates.
 
-  - Admin creates weekly plans
-  - Assigns projects to employees
-  - Specifies hours per project/day
-  - Employee view of their weekly assignments
-  - Calendar integration for date handling
+## Planner app
 
-  Timesheets:
+A single model:
 
-  - Monthly time tracking by employee
-  - Administrative view of all timesheets
-  - Project-level aggregation reports
-  - Validation for time entries (no future dates)
-  - Export capability for reports
+- **`Assignment`** — `employee` (FK user), `project` (FK `projects.Project`), `start_date` and
+  `end_date` (DateFields — an assignment is a date range, there are no per-day rows and no hours), and
+  `description` (label "Notizen").
 
-  6. Security Features
+There is no `urls.py`; the planner is used entirely through the admin dashboard:
 
-  - Role-based access control (RBAC)
-  - File ownership validation for all file operations
-  - Project access control at every level
-  - CSRF protection for all forms
-  - Input validation and sanitization
+- `planner/views.py` exposes `planner_context(request, context)`, which computes today, the
+  start/end of the week, the working-day columns, all assignments, and the "free" (unassigned)
+  employees, and stores them under `context["planner"]`.
+- `templates/planner/calendar.html` renders a two-week weekday grid, grouping assignments by employee.
+  `planner/templatetags/planner_tags.py` provides the `grid_span` / `grid_start` filters that map an
+  assignment's date range onto the grid columns.
+- Assigning / adding / prefilling opens the admin `Assignment` add or change form as a `?_popup=1`
+  iframe; for the "+" prefill buttons, GET params (`employee`, `start_date`) prefill the form.
 
-  7. Development Approach
+## Timesheets app
 
-  1. Phase 1: Setup Django project and authentication
-  2. Phase 2: Implement Projects app with file management
-  3. Phase 3: Build Planner app for scheduling
-  4. Phase 4: Create Timesheets app with reporting
-  5. Phase 5: Admin dashboard and integration testing
-  6. Phase 6: Security hardening and performance optimization
+Models (`timesheets/models.py`):
 
-  8. Requirements Files
+- **`Timesheet`** — `employee` (FK user), `month` (a `DateField` holding the first day of the month),
+  timestamps. Unique per `(employee, month)`.
+- **`TimeEntry`** — `timesheet` (FK), `project` (FK, `SET_NULL`, nullable), `date`, `hours`
+  (Decimal 4,2), `description`. `clean()` rejects future dates and dates that fall outside the
+  timesheet's month; `save()` runs `full_clean()`.
 
-  Django==4.2.7
-  djangorestframework==3.14.0
-  Pillow==10.0.1
-  python-decouple==3.8
+Views (`timesheets/views.py`, all `@login_required`; permission decided from
+`request.user.userprofile.role`):
 
-  9. Deployment Considerations
+- `timesheet_dashboard` — lists timesheets (admin: all; employee: own only).
+- `view_timesheet` — shows a timesheet's entries with a total-hours aggregate (admin: any;
+  employee: own only, else 403).
+- `create_time_entry` — form to add a time entry to a timesheet (admin: any; employee: own only).
+- `create_timesheet` — timesheet creation view.
+- `generate_monthly_report` — monthly report view (admin only).
 
-  - Production-ready settings configuration
-  - Database optimization with proper indexing
-  - File storage management (local or cloud)
-  - Performance monitoring (if needed)
-  - Backup strategy for important data
+These routes are defined in `timesheets/urls.py` but that module is not included in the root urlconf.
+`Timesheet` and `TimeEntry` are both registered with plain django-unfold `ModelAdmin`.
 
-  10. Key Components by App
+## Pages app
 
-  Accounts App:
+A minimal home page (`home_view` in `pages/views.py` → `pages/templates/pages/home.html`, a standalone
+"Hello World" document) served at `""`.
 
-  - Registration view with role selection
-  - Login/logout functionality
-  - Profile management
-  - Password reset
+## Templates & styling
 
-  Projects App:
+There is no base template. Three patterns are in use:
 
-  - Project CRUD operations (admin only)
-  - File upload/download views
-  - File permission validation
-  - Project access control middleware
+1. **Dashboard fragments** — `project_list.html`, `task_list.html`, `calendar.html` contain only a
+   `{% block content %}` body (no `{% extends %}`) and are `{% include %}`d by `admin/index.html`.
+2. **Full modal pages** — `project_detail.html` and `task_detail.html` extend
+   `unfold/layouts/skeleton.html` so they render with full unfold chrome inside the iframe.
+3. **Standalone documents** — the pages home, and the accounts login/register pages, are self-contained
+   HTML documents with no inheritance.
 
-  Planner App:
+Styling is done with unfold's bundled Tailwind utilities + Alpine.js directives; a few templates add
+small inline `<style>` blocks. `planner_tags` supplies the calendar grid filters.
 
-  - Admin view for scheduling weekly plans
-  - Employee view of assigned work
-  - Calendar input for weekly planning
-  - Project-hour assignment forms
+## Patterns in use (how the pieces fit)
 
-  Timesheets App:
-
-  - Monthly report viewer
-  - Time entry forms
-  - Data validation and error handling
-  - Administrative aggregated views
+- **New admin-managed object:** register it with `unfold.admin.ModelAdmin` in the app's `admin.py` —
+  it then appears in the admin sidebar with add/change/delete popups.
+- **New dashboard section:** add a fragment template, `{% include %}` it in `templates/admin/index.html`
+  (gating on `user.is_superuser` where needed), and feed it data by adding a call in
+  `core/views.py:dashboard_callback`.
+- **New standalone page:** add a URL in the app's `urls.py`, `include()` it in `core/urls.py`, and have
+  the template extend `unfold/layouts/skeleton.html` (for a full admin-style page) or stand alone.
