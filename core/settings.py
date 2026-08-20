@@ -142,6 +142,9 @@ AUTH_USER_MODEL = 'accounts.User'
 
 UNFOLD = {
     "DASHBOARD_CALLBACK": "core.views.dashboard_callback",
+    "SITE_TITLE": "Jede Elektro",
+    "SITE_HEADER": "Jede Elektro",
+    # "SITE_SUBHEADER": "Verwaltung",
 }
 
 # Enable iframe popup edits
